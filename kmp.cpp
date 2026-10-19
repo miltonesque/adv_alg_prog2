@@ -27,6 +27,7 @@
 #include <string>
 #include <iostream>
 
+
 std::vector<std::size_t> lps(const std::string& pattern) {
 	
 	//store pattern length
@@ -40,9 +41,9 @@ std::vector<std::size_t> lps(const std::string& pattern) {
 	for (std::size_t i = 1; i < m; i++) {
 
 		//if the length prefix can be shortened, then try the next shorter prefix that will match
-		while (length > 0) {
+		while (length > 0 && pattern[i] != pattern[length]) {
 
-			length = lps[length - 1 ];
+			length = lps[length - 1];
 		}
 		//extend prefix lenth is possible and increment the length
 		if (pattern[i] == pattern[length]) {
