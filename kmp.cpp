@@ -25,6 +25,7 @@
 
 #include <vector>
 #include <string>
+#include <iostream>
 
 std::vector<std::size_t> lps(const std::string& pattern) {
 	
@@ -33,10 +34,10 @@ std::vector<std::size_t> lps(const std::string& pattern) {
 	std::vector<std::size_t> lps(m, 0);
 
 	//track length of current matching prefix
-	int length = 0;
+	std::size_t length = 0;
 
 	//loop through pattern, starts at 1 because the first character lps[0] will always be zero
-	for (int i = 1; i < m; i++) {
+	for (std::size_t i = 1; i < m; i++) {
 
 		//if the length prefix can be shortened, then try the next shorter prefix that will match
 		while (length > 0) {
@@ -51,3 +52,14 @@ std::vector<std::size_t> lps(const std::string& pattern) {
 	}
 	return lps;
 }
+
+int main() {
+	std::string pattern = "ABABAC";
+	std::vector<std::size_t> test = lps(pattern);
+
+	for (int x : test) {
+		std::cout << x << " ";
+	}
+}
+
+
