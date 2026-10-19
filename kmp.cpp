@@ -26,6 +26,28 @@
 #include <vector>
 #include <string>
 
-std::vector<std::size_t> kmp_fail_table(const std::string& pattern) {
+std::vector<std::size_t> lps(const std::string& pattern) {
+	
+	//store pattern length
+	const std::size_t m = pattern.size();
+	std::vector<std::size_t> lps(m, 0);
 
+	//track length of current matching prefix
+	int length = 0;
+
+	//loop through pattern, starts at 1 because the first character lps[0] will always be zero
+	for (int i = 1; i < m; i++) {
+
+		//if the length prefix can be shortened, then try the next shorter prefix that will match
+		while (length > 0) {
+
+			length = lps[length - 1 ];
+		}
+		//extend prefix lenth is possible and increment the length
+		if (pattern[i] == pattern[length]) {
+			++length;
+		}
+		lps[i] = length;
+	}
+	return lps;
 }
