@@ -54,6 +54,41 @@ std::vector<std::size_t> lps(const std::string& pattern) {
 	return lps;
 }
 
+/*
+* search function
+* take in the text and pattern
+* loop through and if characters match, increase text and pattern
+* if pattern index = pattern size, text index - pattern index?
+* if mismatch and pattern > 0, no increment to text
+* otherwise, increment i
+*/
+
+std::vector<std::size_t> kmp_search(const std::string& text, const std::string& pattern) {
+
+	const std::size_t n = text.size();
+	const std::size_t m = pattern.size();
+	std::vector<std::size_t> matches;
+
+	const std::vector<std::size_t> lps = buildLPS(pattern);
+	std::size_t k = 0; //pattern index
+
+	for (std::size_t i = 0; i < n; ++i) {
+		while (k > 0 && text[i] != pattern[k]) {
+			k = lps[k - 1];
+		}
+
+		if (text[i] == pattern[k]) {
+			++k;
+		}
+
+		if (k == m) {
+			matches.push_back(i + 1 - m);
+			k = lps[k - 1];
+		}
+	}
+	return matches;
+}
+
 int main() {
 	std::string pattern = "ABABAC";
 	std::vector<std::size_t> test = lps(pattern);
