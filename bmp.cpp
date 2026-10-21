@@ -176,3 +176,4 @@ std::vector<std::size_t> boyer_moore_search_counted(const std::string& text,
                                                     bool useGoodSuffix) {
   return search(text, pattern, &stats, useGoodSuffix);
 }
+
