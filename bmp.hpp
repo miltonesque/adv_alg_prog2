@@ -36,8 +36,8 @@ std::vector<std::size_t> boyer_moore_search_counted(const std::string& text,
 // last position of each character in pattern, or -1 if it does not appear
 std::array<int, 256> buildBadCharTable(const std::string& pattern);
 
-// goodSuffix[j] is the shift when pattern[j..m-1] matched and pattern[j-1]
-// did not. goodSuffix[0] is the shift after a full match.
+// goodSuffix[j] is the shift when pattern[j..m-1] matched and pattern[j-1] did not. 
+// goodSuffix[0] is the shift after a full match.
 std::vector<int> buildGoodSuffixTable(const std::string& pattern);
 
 #endif  // BMP_HPP_
