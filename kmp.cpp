@@ -26,7 +26,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
-
+#include "kmp.hpp"
 
 std::vector<std::size_t> buildLPS(const std::string& pattern) {
 	
