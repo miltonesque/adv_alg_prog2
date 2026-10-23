@@ -70,9 +70,17 @@ std::vector<std::size_t> kmp_search(const std::string& text, const std::string& 
 	std::vector<std::size_t> matches;
 
 	if (m == 0) {
-    std::vector<std::size_t> all(n + 1);
-    for (std::size_t i = 0; i <= n; ++i) all[i] = i;  // or: return {};
-    return all;
+		matches.reserve(n + 1);
+		for (std::size_t i = 0; i <= n; ++i) {
+			matches.push_back(i);
+		}
+		return matches;
+	}
+ 
+	// Edge-input check 2: a pattern longer than the text cannot occur.
+	// (This also covers an empty text with a non-empty pattern.)
+	if (m > n) {
+		return matches;
 	}
 
 	const std::vector<std::size_t> lps = buildLPS(pattern);
