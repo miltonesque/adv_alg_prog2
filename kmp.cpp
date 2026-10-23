@@ -69,6 +69,12 @@ std::vector<std::size_t> kmp_search(const std::string& text, const std::string& 
 	const std::size_t m = pattern.size();
 	std::vector<std::size_t> matches;
 
+	if (m == 0) {
+    std::vector<std::size_t> all(n + 1);
+    for (std::size_t i = 0; i <= n; ++i) all[i] = i;  // or: return {};
+    return all;
+	}
+
 	const std::vector<std::size_t> lps = buildLPS(pattern);
 	std::size_t k = 0; //pattern index
 
