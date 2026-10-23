@@ -94,31 +94,3 @@ std::vector<std::size_t> kmp_search(const std::string& text, const std::string& 
 	}
 	return matches;
 }
-
-int main() {
-	std::string text = "ABABABA";
-	/*std::vector<std::size_t> test = buildLPS(pattern);
-
-	for (int x : test) {
-		std::cout << x << " ";
-	}*/
-
-	const std::string pattern = "ABA";
-
-	const std::vector<std::size_t> matches =
-		kmp_search(text, pattern);
-
-	if (matches.empty()) {
-		std::cout << "no matches found.\n";
-	}
-	else {
-		std::cout << "pattern at these indices: ";
-
-		for (std::size_t index : matches) {
-			std::cout << index << " ";
-		}
-
-		std::cout << '\n';
-	}
-
-}
