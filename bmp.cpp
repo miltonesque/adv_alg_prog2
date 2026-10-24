@@ -1,6 +1,6 @@
 // bmp.cpp - boyer-moore string matching
 //
-// primary author: r
+// primary author: rebecca
 //
 // ---- overview ----
 // the pattern is placed under the text and compared from right to left.
