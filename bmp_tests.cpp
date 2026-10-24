@@ -6,9 +6,10 @@
 // String Matching.vcxproj (benchmark.cpp has the project's main).
 //
 // build and run with g++ (one line):
-//   g++ -std=c++23 -Wall -Wextra -fsanitize=address,undefined -g bmp_tests.cpp bmp.cpp -o bmp_tests && ./bmp_tests
+//   g++ -std=c++14 -Wall -Wextra -g bmp_tests.cpp bmp.cpp -o bmp_tests && ./bmp_tests
+// on linux or mac, add -fsanitize=address,undefined to catch memory errors.
 // or in a visual studio developer command prompt (one line):
-//   cl /std:c++20 /EHsc /W4 bmp_tests.cpp bmp.cpp && bmp_tests.exe
+//   cl /std:c++14 /EHsc /W4 bmp_tests.cpp bmp.cpp && bmp_tests.exe
 //
 // each test prints PASS or FAIL, and the last line is the score
 
