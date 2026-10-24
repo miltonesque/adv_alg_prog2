@@ -1,5 +1,7 @@
 // benchmark.cpp - times every algorithm on the same inputs and writes the
 // results to results/*.csv
+//
+// written by: r
 // 
 // what it does:
 //   1. makes the test inputs. some are random text, some are repeated
@@ -13,7 +15,6 @@
 //   4. for karp-rabin it also counts how many times the hash matched but
 //      the text didn't (false positives).
 //
-
 // run in Release x64 with an empty "results" folder next to the .sln.
 
 #include <chrono>
@@ -79,6 +80,19 @@ std::string patternFrom(const std::string& text, int m, unsigned seed) {
   std::uniform_int_distribution<int> startDist {
       0, static_cast<int>(text.size()) - m};
   return text.substr(startDist(mt), m);
+}
+
+// whole file as one string, with each line break turned into a space.
+// empty if the file is not there.
+std::string readTextFile(const std::string& path) {
+  std::ifstream in {path};
+  std::string text {};
+  std::string line {};
+  while (std::getline(in, line)) {
+    text += line;
+    text += ' ';
+  }
+  return text;
 }
 
 std::string repeated(const std::string& unit, int n) {
@@ -176,6 +190,15 @@ void patternExperiment() {
              patternFrom(text, m, 400 + m));
     }
   }
+  // real english, where some letters are far more common than others
+  const std::string english {readTextFile("data/english.txt")};
+  if (english.size() < 256) {
+    std::cout << "data/english.txt not found, skipping english\n";
+    return;
+  }
+  for (int m : {2, 4, 8, 16, 32, 64, 128, 256}) {
+    runAll(out, "english", english, patternFrom(english, m, 400 + m));
+  }
 }
 
 void worstExperiment() {
@@ -219,19 +242,21 @@ void collisionTrials(std::ofstream& out, const std::string& input,
 }
 
 // same text and pattern as length.csv at n = 1048576, so kmp's times there
-// can be compared with these. 2147483647 = 2^31 - 1 is the default modulus,
-// and 11 is smaller than m = 16.
+// can be compared with these. kRKModulus (2^31 - 1) is the modulus
+// rabin_karp_search uses, and 11 is smaller than m = 16.
 void collisionExperiment() {
   std::ofstream out {"results/collisions.csv"};
   out << "input,modulus,base,ns,hash_hits,false_positives\n";
   const std::string text {randomText(1048576, 26, 100)};
   const std::string pattern {patternFrom(text, 16, 200)};
-  for (unsigned long long modulus : {11, 31, 1021, 65521, 2147483647}) {
+  const std::vector<unsigned long long> moduli {11, 31, 1021, 65521,
+                                                kRKModulus};
+  for (unsigned long long modulus : moduli) {
     collisionTrials(out, "random-26", text, pattern, modulus, 0);
   }
   const std::string built {collidingText(pattern, 31, 1048576)};
-  collisionTrials(out, "built-for-31", built, pattern, 2147483647, 31);
-  collisionTrials(out, "built-for-31", built, pattern, 2147483647, 0);
+  collisionTrials(out, "built-for-31", built, pattern, kRKModulus, 31);
+  collisionTrials(out, "built-for-31", built, pattern, kRKModulus, 0);
 }
 
 int main() {
