@@ -1,6 +1,6 @@
 // bmp_tests.cpp - tests for boyer-moore (bmp.cpp)
 //
-// primary author: r
+// primary author: rebecca
 //
 // this has its own main, so it's built on its own and isn't part of
 // String Matching.vcxproj (benchmark.cpp has the project's main).
