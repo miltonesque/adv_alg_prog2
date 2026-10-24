@@ -1,7 +1,5 @@
 // benchmark.cpp - times every algorithm on the same inputs and writes the
 // results to results/*.csv
-//
-// written by: r
 // 
 // what it does:
 //   1. makes the test inputs. some are random text, some are repeated
