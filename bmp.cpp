@@ -91,7 +91,7 @@ std::vector<int> buildGoodSuffixTable(const std::string& pattern) {
 }
 
 // ---- search ----
-// same inputs and output as kmp_search.
+// same inputs and output as kmp_search and rabin_karp_search.
 std::vector<std::size_t> boyer_moore_search(const std::string& text,
                                             const std::string& pattern) {
   std::vector<std::size_t> matches {};
