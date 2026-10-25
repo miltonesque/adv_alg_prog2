@@ -1,14 +1,13 @@
-// test_kmp.cpp — focused correctness tests for the KMP implementation.
+//kmp_tests.cpp — focused correctness tests for the KMP implementation.
 //
 //   1. Edge cases with hand-checked answers
 //   2. Small inputs: KMP vs brute force on EVERY text/pattern over {a, b}
 //      (a two-letter alphabet forces the most partial matches and overlaps)
 //
-// Convention (from bmp.hpp and benchmark.cpp): an empty pattern, or one longer
-// than the text, gives no matches.
+// an empty pattern, or one longer than the text, gives no matches.
 //
-// Build and run (kmp.cpp's own main() is skipped by -DKMP_NO_MAIN):
-//   g++ -std=c++17 -O2 -DKMP_NO_MAIN kmp.cpp test_kmp.cpp -o test_kmp && ./test_kmp
+// Build and run
+//   g++ -std=c++17 -O2 kmp_tests.cpp -o kmp_tests && ./kmp_tests
 // Exit code: 0 = all passed, 1 = a wrong answer, 3 = a crash.
 
 #include "kmp.hpp"
@@ -22,8 +21,6 @@
 
 using Matches = std::vector<std::size_t>;
 
-// --- Reference implementations ----------------------------------------------
-
 // Tries every alignment; an empty pattern gives no matches.
 static Matches brute_force(const std::string& text, const std::string& pattern) {
 	Matches result;
@@ -35,8 +32,6 @@ static Matches brute_force(const std::string& text, const std::string& pattern) 
 	}
 	return result;
 }
-
-// --- Reporting ---------------------------------------------------------------
 
 static int g_checks = 0, g_failures = 0;
 static std::string g_current; // case being run, printed if the program crashes
@@ -85,7 +80,7 @@ static void summary(const char* suite, int checks_before, int failures_before) {
 	          << g_checks - checks_before << " checks)\n";
 }
 
-// --- 1. Edge cases -------------------------------------------------------------
+// Edge cases
 
 static void test_edge_cases() {
 	const int c = g_checks, f = g_failures;
@@ -112,7 +107,7 @@ static void test_edge_cases() {
 	summary("edge cases", c, f);
 }
 
-// --- 2. Small inputs vs brute force ----------------------------------------------
+// Small inputs vs brute force
 
 // Every string over the alphabet with length 0..max_len.
 static std::vector<std::string> all_strings(const std::string& alphabet, std::size_t max_len) {
