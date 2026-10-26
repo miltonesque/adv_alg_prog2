@@ -309,5 +309,7 @@ int main() {
   std::cout << "worst done\n";
   collisionExperiment();
   std::cout << "collisions done\n";
+  countExperiment();
+  std::cout << "counts done\n";
   return 0;
 }
