@@ -85,8 +85,10 @@ std::vector<std::size_t> rabin_karp_search_counted(
         ++j;
       }
       if (j == m) {
+        stats.comparisons += m;
         matches.push_back(s);
       } else {
+        stats.comparisons += j + 1;
         ++stats.falsePositives;
       }
     }
