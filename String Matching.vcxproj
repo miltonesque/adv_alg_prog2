@@ -125,6 +125,18 @@
     <ClCompile Include="rabin_karp.cpp" />
     <ClCompile Include="benchmark.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="bmp.hpp" />
+    <ClInclude Include="common.hpp" />
+    <ClInclude Include="kmp.hpp" />
+    <ClInclude Include="rabin_karp.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="CMakeLists.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

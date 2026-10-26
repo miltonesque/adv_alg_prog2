@@ -13,6 +13,7 @@
 struct RKStats {
   std::size_t hashHits {0};
   std::size_t falsePositives {0};
+  std::size_t comparisons{ 0 };
 };
 
 // 2^31 - 1, a prime. the modulus used by rabin_karp_search.

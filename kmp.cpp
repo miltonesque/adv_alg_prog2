@@ -92,3 +92,46 @@ std::vector<std::size_t> kmp_search(const std::string& text, const std::string& 
 	}
 	return matches;
 }
+
+// ---- counted search ----
+// exactly the same steps as kmp_search, with counters added. each text
+// character / pattern character pair that is compared is counted once.
+std::vector<std::size_t> kmp_search_counted(const std::string& text,
+	const std::string& pattern,
+	KMPStats& stats) {
+	std::vector<std::size_t> matches{};
+	const std::size_t n{ text.size() };
+	const std::size_t m{ pattern.size() };
+	if (m == 0 || m > n) {
+		return matches;
+	}
+
+	const std::vector<std::size_t> lps{ buildLPS(pattern) };
+	std::size_t k{ 0 };
+	for (std::size_t i = 0; i < n; ++i) {
+		while (k > 0) {
+			++stats.comparisons;
+			if (text[i] == pattern[k]) {
+				break;
+			}
+			k = lps[k - 1];
+			++stats.fallbacks;
+		}
+		if (k == 0) {
+			// nothing matches yet (or it fell all the way back), so compare
+			// with the first pattern character
+			++stats.comparisons;
+			if (text[i] == pattern[0]) {
+				++k;
+			}
+		}
+		else {
+			++k;  // the loop broke out on a matching character
+		}
+		if (k == m) {
+			matches.push_back(i + 1 - m);
+			k = lps[k - 1];
+		}
+	}
+	return matches;
+}

@@ -68,3 +68,4 @@ Testing/
 .cache/
 /.vs
 /String Matching/x64/Debug
+/results

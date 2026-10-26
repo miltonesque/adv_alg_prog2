@@ -25,25 +25,26 @@
 #include <random>
 #include <string>
 #include <vector>
+#include "common.hpp"
 #include "bmp.hpp"
 #include "kmp.hpp"
 #include "rabin_karp.hpp"
 
-// find is restarted one past each match so overlapping matches are counted,
-// the same as the other algorithms
-std::vector<std::size_t> stdFindSearch(const std::string& text,
-                                       const std::string& pattern) {
-  std::vector<std::size_t> matches {};
-  if (pattern.empty()) {
-    return matches;
-  }
-  std::size_t pos {text.find(pattern)};
-  while (pos != std::string::npos) {
-    matches.push_back(pos);
-    pos = text.find(pattern, pos + 1);
-  }
-  return matches;
-}
+//// find is restarted one past each match so overlapping matches are counted,
+//// the same as the other algorithms
+//std::vector<std::size_t> stdFindSearch(const std::string& text,
+//                                       const std::string& pattern) {
+//  std::vector<std::size_t> matches {};
+//  if (pattern.empty()) {
+//    return matches;
+//  }
+//  std::size_t pos {text.find(pattern)};
+//  while (pos != std::string::npos) {
+//    matches.push_back(pos);
+//    pos = text.find(pattern, pos + 1);
+//  }
+//  return matches;
+//}
 
 const std::vector<std::string> kAlgorithms {"kmp", "boyer-moore", "karp-rabin",
                                             "std-find"};
@@ -82,14 +83,6 @@ std::string patternFrom(const std::string& text, int m, unsigned seed) {
   std::uniform_int_distribution<int> startDist {
       0, static_cast<int>(text.size()) - m};
   return text.substr(startDist(mt), m);
-}
-
-std::string repeated(const std::string& unit, int n) {
-  std::string s {};
-  while (static_cast<int>(s.size()) < n) {
-    s += unit;
-  }
-  return s.substr(0, n);
 }
 
 // every block of m characters has the same karp-rabin hash as the pattern
@@ -235,6 +228,67 @@ void collisionExperiment() {
   const std::string built {collidingText(pattern, 31, 1048576)};
   collisionTrials(out, "built-for-31", built, pattern, 2147483647, 31);
   collisionTrials(out, "built-for-31", built, pattern, 2147483647, 0);
+}
+
+// ---- operation counts ----
+// the counted versions are run once on the same inputs as the timing
+// experiments (same seeds), and every counter is written as its own row:
+//   kmp:         comparisons, fallbacks
+//   boyer-moore: comparisons, alignments
+//   karp-rabin:  comparisons, hash_hits, false_positives
+// karp-rabin uses a fixed seeded base here so the counts are reproducible.
+// timing and counting are kept apart so the counters never slow the timed
+// runs.
+void countAll(std::ofstream& out, const std::string& input,
+              const std::string& text, const std::string& pattern) {
+  const std::vector<std::size_t> expected {stdFindSearch(text, pattern)};
+  auto row = [&](const std::string& algo, const std::string& counter,
+                 std::size_t value) {
+    out << algo << ',' << input << ',' << text.size() << ',' << pattern.size()
+        << ',' << expected.size() << ',' << counter << ',' << value << '\n';
+  };
+
+  KMPStats kmp {};
+  BMStats bm {};
+  RKStats rk {};
+  static std::mt19937_64 baseGen {600};
+  std::uniform_int_distribution<unsigned long long> baseDist {2, kRKModulus - 1};
+  if (kmp_search_counted(text, pattern, kmp) != expected ||
+      boyer_moore_search_counted(text, pattern, bm) != expected ||
+      rabin_karp_search_counted(text, pattern, baseDist(baseGen), kRKModulus,
+                                rk) != expected) {
+    std::cerr << "WRONG ANSWER from a counted search on " << input
+              << ", m = " << pattern.size() << '\n';
+    return;
+  }
+  row("kmp", "comparisons", kmp.comparisons);
+  row("kmp", "fallbacks", kmp.fallbacks);
+  row("boyer-moore", "comparisons", bm.comparisons);
+  row("boyer-moore", "alignments", bm.alignments);
+  row("karp-rabin", "comparisons", rk.comparisons);
+  row("karp-rabin", "hash_hits", rk.hashHits);
+  row("karp-rabin", "false_positives", rk.falsePositives);
+}
+
+void countExperiment() {
+  std::ofstream out {"results/counts.csv"};
+  out << "algorithm,input,n,m,matches,counter,value\n";
+  // same texts and patterns (same seeds) as patternExperiment
+  for (int sigma : {2, 4, 26, 256}) {
+    const std::string text {randomText(1048576, sigma, 300 + sigma)};
+    for (int m : {2, 4, 8, 16, 32, 64, 128, 256}) {
+      countAll(out, "random-" + std::to_string(sigma), text,
+               patternFrom(text, m, 400 + m));
+    }
+  }
+  // same inputs as worstExperiment
+  const std::string allA(1048576, 'a');
+  const std::string periodic {repeated("ab", 1048576)};
+  for (int m : {4, 16, 64, 256}) {
+    countAll(out, "all-a", allA, std::string(m, 'a'));
+    countAll(out, "periodic", periodic, repeated("ab", m));
+    countAll(out, "a-then-b", allA, std::string(m - 1, 'a') + "b");
+  }
 }
 
 int main() {
