@@ -1,9 +1,6 @@
 // benchmark.cpp - times every algorithm on the same inputs and writes the
 // results to results/*.csv
 // 
-//
-// this is just a draft of the benchmark for now, the karp-rabin and kmp parts won't build until those files are done.
-//
 // what it does:
 //   1. makes the test inputs. some are random text, some are repeated
 //      text like aaaa or abab, and one is made so karp-rabin's hash gives
