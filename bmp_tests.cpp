@@ -4,10 +4,12 @@
 //
 // this has its own main, so it's built on its own (see CMakeLists.txt) and
 // isn't part of String Matching.vcxproj. scripts/reproduce.py builds and
-// runs it, or to build and run it alone (one line):
-//   g++ -std=c++17 bmp_tests.cpp bmp.cpp -o bmp_tests && ./bmp_tests
+// runs it, or to build and run it alone with g++:
+//   g++ -std=c++17 bmp_tests.cpp bmp.cpp -o bmp_tests
+//   ./bmp_tests
 // or in developer powershell for visual studio:
-//   cl /std:c++17 /EHsc /W4 bmp_tests.cpp bmp.cpp && .\bmp_tests.exe
+//   cl /std:c++17 /EHsc /W4 bmp_tests.cpp bmp.cpp
+//   .\bmp_tests.exe
 //
 // each test prints PASS or FAIL, and the last line is the score
 
@@ -18,8 +20,6 @@
 #include <vector>
 #include "bmp.hpp"
 #include "common.hpp"
-
-using Matches = std::vector<std::size_t>;
 
 static int passed {0};
 static int total {0};
@@ -35,21 +35,6 @@ static void check(bool ok, const std::string& name) {
 }
 
 // ---- helpers ----
-
-// a second answer from the standard library. find starts again one past
-// each match, so overlapping matches get counted too
-static Matches stdFind(const std::string& text, const std::string& pattern) {
-  Matches out {};
-  if (pattern.empty()) {
-    return out;
-  }
-  std::size_t pos {text.find(pattern)};
-  while (pos != std::string::npos) {
-    out.push_back(pos);
-    pos = text.find(pattern, pos + 1);
-  }
-  return out;
-}
 
 // works out one good suffix shift the slow way, straight from what it
 // means, so we can check the fast table. pattern[j..m-1] matched and
@@ -211,7 +196,8 @@ static void randomInputs() {
     const int m {1 + trial % 40};
     const std::string pattern {text.substr(mt() % (text.size() - m), m)};
     const Matches got {boyer_moore_search(text, pattern)};
-    ok = got == naiveSearch(text, pattern) && got == stdFind(text, pattern);
+    ok = got == naiveSearch(text, pattern) &&
+         got == stdFindSearch(text, pattern);
   }
   check(ok, "200 long cases match naive and std::string::find");
 }
