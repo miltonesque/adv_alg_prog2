@@ -2,13 +2,12 @@
 //
 // primary author: r
 //
-// this has its own main, so it's built on its own and isn't part of
-// String Matching.vcxproj (benchmark.cpp has the project's main).
-//
-// build and run with g++ (one line):
-//   g++ -std=c++23 -Wall -Wextra -fsanitize=address,undefined -g bmp_tests.cpp bmp.cpp -o bmp_tests && ./bmp_tests
-// or in a visual studio developer command prompt (one line):
-//   cl /std:c++20 /EHsc /W4 bmp_tests.cpp bmp.cpp && bmp_tests.exe
+// this has its own main, so it's built on its own (see CMakeLists.txt) and
+// isn't part of String Matching.vcxproj. scripts/reproduce.py builds and
+// runs it, or to build and run it alone (one line):
+//   g++ -std=c++17 bmp_tests.cpp bmp.cpp -o bmp_tests && ./bmp_tests
+// or in developer powershell for visual studio:
+//   cl /std:c++17 /EHsc /W4 bmp_tests.cpp bmp.cpp && .\bmp_tests.exe
 //
 // each test prints PASS or FAIL, and the last line is the score
 
@@ -238,6 +237,52 @@ static void worstCases() {
         "repeating ab text and pattern");
 }
 
+// the counted version is used for counts.csv, so it must give the same
+// matches as boyer_moore_search, and its counts must make sense: at most one
+// alignment per position (n - m + 1), at least one comparison per alignment,
+// and at most m comparisons per alignment
+static void countedVersion() {
+  bool sameAnswer {true};
+  bool withinBounds {true};
+  std::mt19937 mt {6};
+  for (int trial = 0; trial < 2000; ++trial) {
+    const std::string text {
+        randomString(static_cast<int>(mt() % 300), "ab", mt)};
+    const std::string pattern {
+        randomString(1 + static_cast<int>(mt() % 8), "ab", mt)};
+    BMStats stats {};
+    sameAnswer = sameAnswer && boyer_moore_search_counted(text, pattern,
+                                                          stats) ==
+                                   boyer_moore_search(text, pattern);
+    if (pattern.size() <= text.size()) {
+      const std::size_t positions {text.size() - pattern.size() + 1};
+      withinBounds = withinBounds && stats.alignments <= positions &&
+                     stats.comparisons >= stats.alignments &&
+                     stats.comparisons <= stats.alignments * pattern.size();
+    }
+  }
+  check(sameAnswer, "counted version gives the same matches (2000 cases)");
+  check(withinBounds, "counts stay within their bounds (2000 cases)");
+
+  // worked out by hand. all a's with pattern a's: every position is a
+  // match and the good suffix shift is 1, so 991 alignments of 10
+  // comparisons each
+  BMStats allA {};
+  boyer_moore_search_counted(std::string(1000, 'a'), std::string(10, 'a'),
+                             allA);
+  check(allA.alignments == 991 && allA.comparisons == 9910,
+        "all a's counts are exact: 991 alignments, 9910 comparisons");
+
+  // pattern with a letter the text never has: the first comparison fails
+  // and the bad character rule moves the pattern past it, so n / m
+  // alignments of 1 comparison each
+  BMStats skip {};
+  boyer_moore_search_counted(std::string(1000, 'a'), std::string(10, 'b'),
+                             skip);
+  check(skip.alignments == 100 && skip.comparisons == 100,
+        "skipping counts are exact: 100 alignments, 100 comparisons");
+}
+
 int main() {
   handWorked();
   overlapping();
@@ -247,6 +292,7 @@ int main() {
   everySmallInput();
   randomInputs();
   worstCases();
+  countedVersion();
   std::cout << "SCORE: " << passed << " / " << total << '\n';
   return passed == total ? 0 : 1;
 }
