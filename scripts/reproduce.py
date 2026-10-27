@@ -52,7 +52,9 @@ def main():
     run(["cmake", "-S", ROOT, "-B", BUILD, "-DCMAKE_BUILD_TYPE=Release"])
     run(["cmake", "--build", BUILD, "--config", "Release", "--parallel"])
     run(["ctest", "-C", "Release", "--output-on-failure"], cwd=BUILD)
-    # the benchmark writes to results/ relative to where it runs
+    # the benchmark writes to results/ relative to where it runs, and stops 
+    # if folder is not there
+    (ROOT / "results").mkdir(exist_ok=True)
     run([find_benchmark()], cwd=ROOT)
     print("\ndone - results/ now holds the CSVs")
 
