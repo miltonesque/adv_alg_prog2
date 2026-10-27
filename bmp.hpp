@@ -13,6 +13,21 @@
 std::vector<std::size_t> boyer_moore_search(const std::string& text,
                                             const std::string& pattern);
 
+// counts from a search, used to test explanations of the timing results.
+// comparisons is every text character compared with a pattern character.
+// alignments is every position the pattern was placed at (so n - m + 1 for
+// the naive method, and fewer when the shifts are bigger than 1).
+struct BMStats {
+    std::size_t comparisons{ 0 };
+    std::size_t alignments{ 0 };
+};
+
+// the same search, but the counts are added to stats. kept separate so the
+// counting does not slow down the version that is timed.
+std::vector<std::size_t> boyer_moore_search_counted(const std::string& text,
+    const std::string& pattern,
+    BMStats& stats);
+
 // last position of each character in pattern, or -1 if it does not appear
 std::array<int, 256> buildBadCharTable(const std::string& pattern);
 

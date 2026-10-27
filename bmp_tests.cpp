@@ -18,6 +18,7 @@
 #include <string>
 #include <vector>
 #include "bmp.hpp"
+#include "common.hpp"
 
 using Matches = std::vector<std::size_t>;
 
@@ -36,22 +37,6 @@ static void check(bool ok, const std::string& name) {
 
 // ---- helpers ----
 
-// the answer to compare against. tries every position, so it's slow but
-// you can see it's right
-static Matches naiveSearch(const std::string& text,
-                           const std::string& pattern) {
-  Matches out {};
-  if (pattern.empty() || pattern.size() > text.size()) {
-    return out;
-  }
-  for (std::size_t s = 0; s + pattern.size() <= text.size(); ++s) {
-    if (text.compare(s, pattern.size(), pattern) == 0) {
-      out.push_back(s);
-    }
-  }
-  return out;
-}
-
 // a second answer from the standard library. find starts again one past
 // each match, so overlapping matches get counted too
 static Matches stdFind(const std::string& text, const std::string& pattern) {
@@ -63,42 +48,6 @@ static Matches stdFind(const std::string& text, const std::string& pattern) {
   while (pos != std::string::npos) {
     out.push_back(pos);
     pos = text.find(pattern, pos + 1);
-  }
-  return out;
-}
-
-// random string of length n, only using the characters in letters
-static std::string randomString(int n, const std::string& letters,
-                                std::mt19937& mt) {
-  std::uniform_int_distribution<int> pick {
-      0, static_cast<int>(letters.size()) - 1};
-  std::string s(n, ' ');
-  for (char& c : s) {
-    c = letters[pick(mt)];
-  }
-  return s;
-}
-
-// keeps adding unit until the string is n long, e.g. ("ab", 5) is "ababa"
-static std::string repeated(const std::string& unit, int n) {
-  std::string s {};
-  while (static_cast<int>(s.size()) < n) {
-    s += unit;
-  }
-  return s.substr(0, n);
-}
-
-// every string made from letters with length 0 up to maxLen
-static std::vector<std::string> allStrings(const std::string& letters,
-                                           int maxLen) {
-  std::vector<std::string> out {""};
-  for (std::size_t i = 0; i < out.size(); ++i) {
-    if (static_cast<int>(out[i].size()) == maxLen) {
-      continue;
-    }
-    for (char c : letters) {
-      out.push_back(out[i] + c);
-    }
   }
   return out;
 }
