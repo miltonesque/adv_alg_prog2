@@ -78,6 +78,7 @@
     <ClCompile>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level3</WarningLevel>
+      <AdditionalIncludeDirectories>include/</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -88,6 +89,7 @@
     <ClCompile>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level3</WarningLevel>
+      <AdditionalIncludeDirectories>include/</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -98,6 +100,7 @@
     <ClCompile>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level3</WarningLevel>
+      <AdditionalIncludeDirectories>include/</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -111,6 +114,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
+      <AdditionalIncludeDirectories>include/</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -120,16 +124,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="bmp.cpp" />
-    <ClCompile Include="kmp.cpp" />
-    <ClCompile Include="rabin_karp.cpp" />
-    <ClCompile Include="benchmark.cpp" />
+    <ClCompile Include="benchmark\input_generators.cpp" />
+    <ClCompile Include="src\boyer_moore.cpp" />
+    <ClCompile Include="src\kmp.cpp" />
+    <ClCompile Include="src\rabin_karp.cpp" />
+    <ClCompile Include="benchmark\benchmark_runner.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="bmp.hpp" />
-    <ClInclude Include="common.hpp" />
-    <ClInclude Include="kmp.hpp" />
-    <ClInclude Include="rabin_karp.hpp" />
+    <ClInclude Include="benchmark\benchmark_runner.hpp" />
+    <ClInclude Include="benchmark\input_generators.hpp" />
+    <ClInclude Include="include\benchmark.hpp" />
+    <ClInclude Include="include\boyer_moore.hpp" />
+    <ClInclude Include="include\kmp.hpp" />
+    <ClInclude Include="include\rabin_karp.hpp" />
+    <ClInclude Include="include\test_utils.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />
