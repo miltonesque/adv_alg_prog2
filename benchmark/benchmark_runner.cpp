@@ -85,6 +85,24 @@ namespace {
         throw std::invalid_argument("unknown algorithm " + name);
     }
 
+    // ---- karp-rabin bases chosen by the harness ----
+    // src/rabin_karp.cpp is used exactly as written. its rabin_karp_search
+    // draws a fresh base from a generator seeded by std::random_device, so
+    // those bases differ from run to run; that is what the main timings use.
+    // wherever the base itself matters (operation counts, the 1000-run tail
+    // experiment) the harness draws the base from this seeded generator and
+    // passes it to rabin_karp_search_counted, which is the function
+    // rabin_karp_search calls internally. those results are reproducible.
+    std::mt19937_64& harnessBaseRng() {
+        static std::mt19937_64 rng{ 20261029 };
+        return rng;
+    }
+
+    unsigned long long harnessBase(unsigned long long modulus) {
+        std::uniform_int_distribution<unsigned long long> dist{ 2, modulus - 1 };
+        return dist(harnessBaseRng());
+    }
+
     double secondsSince(Clock::time_point start) {
         return std::chrono::duration<double>(Clock::now() - start).count();
     }
@@ -229,7 +247,7 @@ namespace {
             }
             else if (a.name == "karp_rabin" || a.name == "karp_rabin_fixed31") {
                 const unsigned long long base{ a.name == "karp_rabin"
-                    ? rabin_karp_random_base(kRKModulus) : kRKFixedBase };
+                    ? harnessBase(kRKModulus) : kRKFixedBase };
                 RKStats s{};
                 const std::size_t k{
                     rabin_karp_search_counted(t, p, base, kRKModulus, s).size() };
@@ -267,9 +285,9 @@ namespace {
 
     // E1: text length. tests the linear-in-n claim for all of them and the
     // constant factors: per-character work of each method.
-    void scaleN(Runner& r, const BenchConfig& cfg, std::uint64_t& seed) {
+    void scaleN(Runner& r, const BenchConfig&, std::uint64_t& seed) {
         for (std::size_t sigma : { 4, 26 }) {
-            for (std::size_t n : powersOfTwo(14, cfg.quick ? 20 : 24)) {
+            for (std::size_t n : powersOfTwo(14, 24)) {
                 Instance inst{ "scale_n", "random_embedded",
                     "sigma" + std::to_string(sigma), sigma,
                     randomEmbedded(n, 16, sigma, ++seed) };
@@ -281,8 +299,8 @@ namespace {
 
     // E2: pattern length. boyer-moore's skips grow with m (sublinear time);
     // kmp and karp-rabin should be flat.
-    void scaleM(Runner& r, const BenchConfig& cfg, std::uint64_t& seed) {
-        const std::size_t n{ std::size_t{ 1 } << (cfg.quick ? 20 : 22) };
+    void scaleM(Runner& r, const BenchConfig&, std::uint64_t& seed) {
+        const std::size_t n{ std::size_t{ 1 } << (22) };
         for (std::size_t sigma : { 4, 26 }) {
             for (std::size_t m : powersOfTwo(1, 10)) {
                 Instance inst{ "scale_m", "random_embedded",
@@ -296,8 +314,8 @@ namespace {
 
     // E3: alphabet size. small alphabets make bad-character shifts short and
     // partial matches long; large alphabets do the opposite.
-    void alphabet(Runner& r, const BenchConfig& cfg, std::uint64_t& seed) {
-        const std::size_t n{ std::size_t{ 1 } << (cfg.quick ? 20 : 22) };
+    void alphabet(Runner& r, const BenchConfig&, std::uint64_t& seed) {
+        const std::size_t n{ std::size_t{ 1 } << (22) };
         for (std::size_t sigma : { 2, 4, 8, 16, 32, 64, 128, 256 }) {
             Instance inst{ "alphabet", "random_embedded", "m32", sigma,
                 randomEmbedded(n, 32, sigma, ++seed) };
@@ -309,9 +327,9 @@ namespace {
     // E4: highly repetitive inputs, where the worst cases live. a^n / a^m makes
     // every alignment a match: boyer-moore (no galil rule) and karp-rabin
     // verify each in full, Theta(n m); kmp stays Theta(n).
-    void repetitive(Runner& r, const BenchConfig& cfg, std::uint64_t&) {
-        const std::size_t n{ std::size_t{ 1 } << (cfg.quick ? 16 : 18) };
-        for (std::size_t m : powersOfTwo(2, cfg.quick ? 8 : 10)) {
+    void repetitive(Runner& r, const BenchConfig&, std::uint64_t&) {
+        const std::size_t n{ std::size_t{ 1 } << (18) };
+        for (std::size_t m : powersOfTwo(2, 10)) {
             for (int v = 0; v < 3; ++v) {
                 TestInput in{ v == 0 ? allSame(n, m)
                               : v == 1 ? allSameMismatchLast(n, m)
@@ -325,9 +343,9 @@ namespace {
 
     // E5: adversarial input for fixed-base karp-rabin. the same pattern is
     // harmless to a random base.
-    void rkAdversarial(Runner& r, const BenchConfig& cfg, std::uint64_t&) {
-        const std::size_t n{ std::size_t{ 1 } << (cfg.quick ? 16 : 18) };
-        for (std::size_t m : powersOfTwo(3, cfg.quick ? 8 : 10)) {
+    void rkAdversarial(Runner& r, const BenchConfig&, std::uint64_t&) {
+        const std::size_t n{ std::size_t{ 1 } << (18) };
+        for (std::size_t m : powersOfTwo(3, 10)) {
             Instance inst{ "rk_adversarial", "constructed", "base31", 0,
                 rabinKarpAdversarial(n, m, kRKFixedBase, kRKModulus) };
             progress(inst);
@@ -363,8 +381,7 @@ namespace {
                  "false_positives,true_matches,reported,windows,bound_per_window,"
                  "exact_rate" };
         std::mt19937_64 orderRng{ cfg.seed ^ 0x5A5A5A5AULL };
-        const std::size_t trials{ cfg.quick ? std::min<std::size_t>(cfg.tailTrials, 200)
-                                            : cfg.tailTrials };
+        const std::size_t trials{ cfg.tailTrials };
 
         struct Scenario {
             std::string name;
@@ -378,7 +395,7 @@ namespace {
 
         // (a) ordinary random text, full modulus: the normal operating regime
         scenarios.push_back({ "random_full", kRKModulus, 4,
-            randomEmbedded(std::size_t{ 1 } << (cfg.quick ? 18 : 20), 16, 4, ++seed),
+            randomEmbedded(std::size_t{ 1 } << (20), 16, 4, ++seed),
             nan });
         // (b) random text, small moduli: false positives become frequent enough
         // to measure, and can be set against the (m-1)/(p-2) bound
@@ -428,7 +445,7 @@ namespace {
                         // itself (they only change on a hash hit), so the timed
                         // run also gives the hash hits and false positives
                         name = "karp_rabin";
-                        base = rabin_karp_random_base(sc.modulus);
+                        base = harnessBase(sc.modulus);
                         const auto start{ Clock::now() };
                         const Matches got{
                             rabin_karp_search_counted(t, pat, base, sc.modulus, s) };
@@ -490,39 +507,28 @@ namespace {
             << "reps: " << cfg.reps << '\n'
             << "min sample ms: " << cfg.minSampleMs << '\n'
             << "tail trials: " << cfg.tailTrials << '\n'
-            << "quick: " << (cfg.quick ? "yes" : "no") << '\n'
             << "karp-rabin modulus: " << kRKModulus << '\n'
             << "karp-rabin fixed base: " << kRKFixedBase << '\n';
     }
 
 }  // namespace
 
-const std::vector<std::string>& experimentNames() {
-    static const std::vector<std::string> names{
-        "scale_n", "scale_m", "alphabet", "repetitive", "rk_adversarial", "rk_tail" };
-    return names;
-}
-
 int runBenchmarks(const BenchConfig& cfg) {
-    rabin_karp_seed(cfg.seed);
+    harnessBaseRng().seed(cfg.seed ^ 0xB5B5B5B5ULL);
     writeEnvironment(cfg);
     Runner runner{ cfg };
     std::uint64_t seed{ cfg.seed };
 
-    auto selected = [&](const std::string& name) {
-        return cfg.only.empty() ||
-            std::find(cfg.only.begin(), cfg.only.end(), name) != cfg.only.end();
-        };
 
     const auto start{ Clock::now() };
-    // each experiment gets its own seed range, so running a subset with
-    // --only produces the same instances as a full run
-    if (selected("scale_n")) { seed = cfg.seed + 1000; scaleN(runner, cfg, seed); }
-    if (selected("scale_m")) { seed = cfg.seed + 2000; scaleM(runner, cfg, seed); }
-    if (selected("alphabet")) { seed = cfg.seed + 3000; alphabet(runner, cfg, seed); }
-    if (selected("repetitive")) { seed = cfg.seed + 4000; repetitive(runner, cfg, seed); }
-    if (selected("rk_adversarial")) { seed = cfg.seed + 5000; rkAdversarial(runner, cfg, seed); }
-    if (selected("rk_tail")) { seed = cfg.seed + 6000; rkTail(cfg, seed); }
+    // each experiment gets its own seed range, so its instances do not
+    // depend on which experiments ran before it
+    seed = cfg.seed + 1000; scaleN(runner, cfg, seed);
+    seed = cfg.seed + 2000; scaleM(runner, cfg, seed);
+    seed = cfg.seed + 3000; alphabet(runner, cfg, seed);
+    seed = cfg.seed + 4000; repetitive(runner, cfg, seed);
+    seed = cfg.seed + 5000; rkAdversarial(runner, cfg, seed);
+    seed = cfg.seed + 6000; rkTail(cfg, seed);
 
     std::cerr << "done in " << std::fixed << std::setprecision(1)
         << secondsSince(start) << " s; output verified: "

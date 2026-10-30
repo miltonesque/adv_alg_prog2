@@ -62,4 +62,6 @@ target_link_libraries(stringmatching_tests PRIVATE string_matching)
 add_test(NAME stringmatching COMMAND stringmatching_tests)
 
 add_executable(cross_tests tests/cross_tests.cpp)
+target_link_libraries(cross_tests PRIVATE string_matching bench_inputs)
+add_test(NAME cross COMMAND cross_tests)
 
