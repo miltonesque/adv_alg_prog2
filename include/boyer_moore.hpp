@@ -1,7 +1,9 @@
-// bmp.hpp - boyer-moore string matching
+// boyer_moore.hpp - boyer-moore string matching
+//
+// primary author: r
 
-#ifndef BMP_HPP_
-#define BMP_HPP_
+#ifndef BOYER_MOORE_HPP_
+#define BOYER_MOORE_HPP_
 
 #include <array>
 #include <cstddef>
@@ -18,15 +20,15 @@ std::vector<std::size_t> boyer_moore_search(const std::string& text,
 // alignments is every position the pattern was placed at (so n - m + 1 for
 // the naive method, and fewer when the shifts are bigger than 1).
 struct BMStats {
-    std::size_t comparisons{ 0 };
-    std::size_t alignments{ 0 };
+  std::size_t comparisons {0};
+  std::size_t alignments {0};
 };
 
 // the same search, but the counts are added to stats. kept separate so the
 // counting does not slow down the version that is timed.
 std::vector<std::size_t> boyer_moore_search_counted(const std::string& text,
-    const std::string& pattern,
-    BMStats& stats);
+                                                    const std::string& pattern,
+                                                    BMStats& stats);
 
 // last position of each character in pattern, or -1 if it does not appear
 std::array<int, 256> buildBadCharTable(const std::string& pattern);
@@ -35,4 +37,4 @@ std::array<int, 256> buildBadCharTable(const std::string& pattern);
 // did not. goodSuffix[0] is the shift after a full match.
 std::vector<int> buildGoodSuffixTable(const std::string& pattern);
 
-#endif  // BMP_HPP_
+#endif  // BOYER_MOORE_HPP_
