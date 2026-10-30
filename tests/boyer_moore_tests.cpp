@@ -4,7 +4,6 @@
 //
 // this has its own main, so it's built on its own (see CMakeLists.txt) and
 // isn't part of String Matching.vcxproj. scripts/reproduce.py builds and
-//
 // runs it, or to build and run it alone from the repository root with g++:
 //   g++ -std=c++17 -Iinclude tests/boyer_moore_tests.cpp src/boyer_moore.cpp -o boyer_moore_tests
 //   ./boyer_moore_tests
