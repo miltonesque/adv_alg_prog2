@@ -11,7 +11,7 @@
 #include <random>
 #include <string>
 #include <vector>
-#include "common.hpp"
+#include "test_utils.hpp"
 #include "kmp.hpp"
 
 static int passed{ 0 };
@@ -159,7 +159,7 @@ static void randomInputs() {
     check(ok, "200 long cases match naive and std::string::find");
 }
 
-// the inputs benchmark.cpp uses for the worst cases
+// the worst-case inputs from input_generators.cpp
 static void worstCases() {
     Matches everyPosition{};
     for (std::size_t i = 0; i <= 990; ++i) {
