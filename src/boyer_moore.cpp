@@ -1,4 +1,4 @@
-// bmp.cpp - boyer-moore string matching
+// boyer_moore.cpp - boyer-moore string matching
 //
 // primary author: r
 //
@@ -132,38 +132,37 @@ std::vector<std::size_t> boyer_moore_search(const std::string& text,
 // ---- counted search ----
 // exactly the same steps as boyer_moore_search, with counters added
 std::vector<std::size_t> boyer_moore_search_counted(const std::string& text,
-    const std::string& pattern,
-    BMStats& stats) {
-    std::vector<std::size_t> matches{};
-    const int n{ static_cast<int>(text.size()) };
-    const int m{ static_cast<int>(pattern.size()) };
-    if (m == 0 || m > n) {
-        return matches;
-    }
-
-    const std::array<int, 256> lastOcc{ buildBadCharTable(pattern) };
-    const std::vector<int> goodSuffix{ buildGoodSuffixTable(pattern) };
-
-    int s{ 0 };
-    while (s <= n - m) {
-        ++stats.alignments;
-        int j{ m - 1 };
-        while (j >= 0) {
-            ++stats.comparisons;
-            if (pattern[j] != text[s + j]) {
-                break;
-            }
-            --j;
-        }
-
-        if (j < 0) {
-            matches.push_back(static_cast<std::size_t>(s));
-            s += goodSuffix[0];
-        }
-        else {
-            const int badChar{ j - lastOcc[static_cast<unsigned char>(text[s + j])] };
-            s += std::max(badChar, goodSuffix[j + 1]);
-        }
-    }
+                                                    const std::string& pattern,
+                                                    BMStats& stats) {
+  std::vector<std::size_t> matches {};
+  const int n {static_cast<int>(text.size())};
+  const int m {static_cast<int>(pattern.size())};
+  if (m == 0 || m > n) {
     return matches;
+  }
+
+  const std::array<int, 256> lastOcc {buildBadCharTable(pattern)};
+  const std::vector<int> goodSuffix {buildGoodSuffixTable(pattern)};
+
+  int s {0};
+  while (s <= n - m) {
+    ++stats.alignments;
+    int j {m - 1};
+    while (j >= 0) {
+      ++stats.comparisons;
+      if (pattern[j] != text[s + j]) {
+        break;
+      }
+      --j;
+    }
+
+    if (j < 0) {
+      matches.push_back(static_cast<std::size_t>(s));
+      s += goodSuffix[0];
+    } else {
+      const int badChar {j - lastOcc[static_cast<unsigned char>(text[s + j])]};
+      s += std::max(badChar, goodSuffix[j + 1]);
+    }
+  }
+  return matches;
 }
