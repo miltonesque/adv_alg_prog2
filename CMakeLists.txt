@@ -39,7 +39,6 @@ add_executable(benchmark_app
 target_link_libraries(benchmark_app PRIVATE string_matching bench_inputs)
 
 # record the exact compiler and flags in results/environment.txt
-string(TOUPPER "${CMAKE_BUILD_TYPE}" _bt)
 target_compile_definitions(benchmark_app PRIVATE
     BENCH_COMPILER="${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}"
     BENCH_FLAGS="${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${_bt}}"
