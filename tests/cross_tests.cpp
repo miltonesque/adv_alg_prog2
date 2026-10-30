@@ -1,12 +1,12 @@
-// correctness.cpp - every benchmarked algorithm against a naive reference
+// cross_tests.cpp - every benchmarked algorithm against a naive reference
 //
 // the algorithms come from allAlgorithms() in include/benchmark.hpp, which is
 // the same list the benchmark times, so nothing is timed that has not been
 // checked here. every algorithm must equal the naive answer exactly.
 //
-// the counted versions are checked against the uncounted ones, the counters
-// against bounds from the theory, and karp-rabin's fast remainder step
-// (added for benchmarking) against plain % arithmetic.
+// the counted versions are checked against the uncounted ones, and the
+// counters against bounds from the theory. rabin-karp picks a new random base
+// on every call, but it checks every hash hit, so its answers never change.
 
 #include <cstdint>
 #include <iostream>
@@ -196,7 +196,6 @@ static void forcedCollisions() {
 }
 
 int main() {
-    rabin_karp_seed(20261029);
     exhaustive("ab", 10, 5);
     exhaustive("abc", 7, 4);
     randomSmall();
