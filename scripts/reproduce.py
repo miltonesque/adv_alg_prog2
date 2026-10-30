@@ -7,7 +7,7 @@ One command, no options. Works on Windows, macOS and Linux. Run from anywhere:
 
 Steps:
   1. configure and build with CMake in Release mode     -> build/
-  2. run all five test programs with ctest (stops if any test fails)
+  2. run all four test programs with ctest (stops if any test fails)
   3. run the benchmark                                  -> results/runtime.csv,
                                                            comparisons.csv,
                                                            rk_tail.csv,
