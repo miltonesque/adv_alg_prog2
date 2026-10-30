@@ -38,12 +38,18 @@ add_executable(benchmark_app
 )
 target_link_libraries(benchmark_app PRIVATE string_matching bench_inputs)
 
-# record the exact compiler and flags in results/environment.txt
+# record the exact compiler and flags in results/environment.txt.
+# $<CONFIG> is used so the right build type and flags are recorded with
+# Visual Studio too, where CMAKE_BUILD_TYPE is empty
 target_compile_definitions(benchmark_app PRIVATE
     BENCH_COMPILER="${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}"
-    BENCH_FLAGS="${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${_bt}}"
-    BENCH_BUILD_TYPE="${CMAKE_BUILD_TYPE}"
+    BENCH_FLAGS="${CMAKE_CXX_FLAGS} $<$<CONFIG:Release>:${CMAKE_CXX_FLAGS_RELEASE}>$<$<CONFIG:Debug>:${CMAKE_CXX_FLAGS_DEBUG}>"
+    BENCH_BUILD_TYPE="$<CONFIG>"
 )
+
+# ---- explanation tests: controls that check our explanations ----
+add_executable(explain_app benchmark/explanation_tests.cpp)
+target_link_libraries(explain_app PRIVATE string_matching bench_inputs)
 
 # ---- tests: each file has its own main, so each is its own executable ----
 enable_testing()
