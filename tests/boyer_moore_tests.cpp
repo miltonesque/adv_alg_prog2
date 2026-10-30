@@ -1,15 +1,16 @@
-// bmp_tests.cpp - tests for boyer-moore (bmp.cpp)
+// boyer_moore_tests.cpp - tests for boyer-moore (src/boyer_moore.cpp)
 //
 // primary author: r
 //
 // this has its own main, so it's built on its own (see CMakeLists.txt) and
 // isn't part of String Matching.vcxproj. scripts/reproduce.py builds and
-// runs it, or to build and run it alone with g++:
-//   g++ -std=c++17 bmp_tests.cpp bmp.cpp -o bmp_tests
-//   ./bmp_tests
+//
+// runs it, or to build and run it alone from the repository root with g++:
+//   g++ -std=c++17 -Iinclude tests/boyer_moore_tests.cpp src/boyer_moore.cpp -o boyer_moore_tests
+//   ./boyer_moore_tests
 // or in developer powershell for visual studio:
-//   cl /std:c++17 /EHsc /W4 bmp_tests.cpp bmp.cpp
-//   .\bmp_tests.exe
+//   cl /std:c++17 /EHsc /W4 /Iinclude tests\boyer_moore_tests.cpp src\boyer_moore.cpp
+//   .\boyer_moore_tests.exe
 //
 // each test prints PASS or FAIL, and the last line is the score
 
@@ -18,8 +19,8 @@
 #include <random>
 #include <string>
 #include <vector>
-#include "bmp.hpp"
-#include "common.hpp"
+#include "boyer_moore.hpp"
+#include "test_utils.hpp"
 
 static int passed {0};
 static int total {0};
@@ -101,7 +102,7 @@ static void edgeCases() {
 }
 
 // char is signed on most compilers, so bytes above 127 would be negative
-// table indexes if bmp.cpp didn't cast them. NUL bytes have to work too
+// table indexes if boyer_moore.cpp didn't cast them. NUL bytes must work too
 static void byteValues() {
   check(boyer_moore_search("ab\xff\xfe" "ab\xff", "b\xff") == Matches {1, 5},
         "bytes above 127");
@@ -111,7 +112,7 @@ static void byteValues() {
         "NUL bytes in text and pattern");
 }
 
-// the two tables on their own, using the abcab example from bmp.cpp
+// the two tables on their own, using the abcab example from boyer_moore.cpp
 static void tables() {
   const std::array<int, 256> lastOcc {buildBadCharTable("abcab")};
   check(lastOcc['a'] == 3 && lastOcc['b'] == 4 && lastOcc['c'] == 2 &&
@@ -202,7 +203,7 @@ static void randomInputs() {
   check(ok, "200 long cases match naive and std::string::find");
 }
 
-// the inputs benchmark.cpp uses for the worst cases. these are where
+// the worst-case inputs from input_generators.cpp. these are where
 // boyer-moore does the most work, so the answers need to be right here too
 static void worstCases() {
   Matches everyPosition {};
@@ -223,7 +224,7 @@ static void worstCases() {
         "repeating ab text and pattern");
 }
 
-// the counted version is used for counts.csv, so it must give the same
+// the counted version is used for comparisons.csv, so it must give the same
 // matches as boyer_moore_search, and its counts must make sense: at most one
 // alignment per position (n - m + 1), at least one comparison per alignment,
 // and at most m comparisons per alignment
