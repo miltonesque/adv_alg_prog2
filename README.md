@@ -6,12 +6,25 @@ Theme 2, deterministic vs randomised: KMP and Boyer-Moore (deterministic) agains
 
 ## Algorithms and primary authors
 
-| Algorithm | Primary author |
-|---|---|
-| Knuth-Morris-Pratt | Aeesha Bello |
-| Boyer-Moore | Rebecca Kim |
-| Karp-Rabin | Mallory Li |
+| Algorithm | Source | Primary author |
+|---|---|---|
+| Knuth-Morris-Pratt | `src/kmp.cpp` | Aeesha Bello |
+| Boyer-Moore | `src/boyer_moore.cpp` | Rebecca Kim |
+| Karp-Rabin | `src/rabin_karp.cpp` | Mallory Li |
 
+
+## Repository layout
+
+```
+src/, include/          the three algorithms and their headers
+include/benchmark.hpp   the list of algorithms the tests and the benchmark both use
+include/test_utils.hpp  naive and std::string::find reference answers, test helpers
+benchmark/              input generators, the benchmark, and the two explanation tests
+tests/                  four test programs (run by ctest)
+scripts/reproduce.py    build + test + benchmark + charts, in one command
+scripts/plot_results.py results/*.csv -> results/plots/ and results/summary/
+results/                the committed raw data, tables and charts used in the report
+```
 ## What you need
  
 - CMake 3.20 or newer
