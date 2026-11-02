@@ -1,4 +1,7 @@
-/*
+/*// kmp.cpp - knuth-morris-pratt string matching
+//
+// primary author: Aeesha Bello
+
 * knuth morris pratt 
 * it searches for occurence sof a word within a text string. it will slide through
 * the pattern character by character but WILL NOT backtrack to the text pointer. it will
@@ -11,7 +14,11 @@
 /*
 * need a "failure table" or "LPS" array longest  proper prefix
 * so for string "ABAB" consider prefix and suffix. a real prefix is a prefix that is shorter than entire string
-* longest prefix that is also a suffix is "AB" with length 2. this is what will be in the failure table
+* longest prefix that is also a suffix is "AB" with length 2. this is what will be in the failure table.
+* e.g. "ABABC" gives 0 0 1 2 0. lps[3] = 2 because "ABAB" starts and ends
+// with "AB". so if "ABAB" has matched and the next character is wrong, the
+// last two text characters were "AB", and the search carries on as if 2
+// characters had matched, without reading them again.
 */
 
 /*
@@ -23,7 +30,6 @@
 * return lps
 */
 
-#include <vector>
 #include <string>
 #include <iostream>
 #include "kmp.hpp"

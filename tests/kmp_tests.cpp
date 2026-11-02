@@ -1,9 +1,10 @@
 // kmp_tests.cpp - tests for knuth-morris-pratt (kmp.cpp)
 //
+// Primary Author: Aeesha Bello
 //
 // this has its own main, so it's built on its own (see CMakeLists.txt).
 // build and run everything with cmake (see README), or this file alone:
-//   g++ -std=c++17 -Wall -Wextra -fsanitize=address,undefined -g kmp_tests.cpp kmp.cpp -o kmp_tests && ./kmp_tests
+//   g++ -std=c++17 -Wall -Wextra -Iinclude tests/kmp_tests.cpp src/kmp.cpp -o kmp_tests && ./kmp_tests
 //
 // each test prints PASS or FAIL, and the last line is the score
 
