@@ -284,13 +284,23 @@ namespace {
     }
 
     // E1: text length. tests the linear-in-n claim for all of them and the
-    // constant factors: per-character work of each method.
+        // constant factors: per-character work of each method.
+        // only n may change between instances, so for each alphabet ONE random
+        // text of the largest size is made, every n uses a prefix of it, and the
+        // SAME pattern is used for every n. the pattern is cut from the first
+        // 2^14 characters, so it occurs in every prefix.
     void scaleN(Runner& r, const BenchConfig&, std::uint64_t& seed) {
+        const std::vector<std::size_t> sizes{ powersOfTwo(14, 24) };
+        const std::size_t m{ 16 };
         for (std::size_t sigma : { 4, 26 }) {
-            for (std::size_t n : powersOfTwo(14, 24)) {
+            const std::string longText{ randomText(sizes.back(), sigma, ++seed) };
+            std::mt19937_64 cutRng{ seed ^ 0x9E3779B97F4A7C15ULL };
+            std::uniform_int_distribution<std::size_t> where{ 0, sizes.front() - m };
+            const std::string pattern{ longText.substr(where(cutRng), m) };
+            for (std::size_t n : sizes) {
+                TestInput input{ "random_embedded", longText.substr(0, n), pattern };
                 Instance inst{ "scale_n", "random_embedded",
-                    "sigma" + std::to_string(sigma), sigma,
-                    randomEmbedded(n, 16, sigma, ++seed) };
+                    "sigma" + std::to_string(sigma), sigma, input };
                 progress(inst);
                 r.run(inst, kAll);
             }
