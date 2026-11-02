@@ -1,0 +1,14 @@
+date: 2026-11-02 19:35:57
+cpu: unknown (not Linux: record the CPU model by hand)
+hardware threads: 12
+compiler: MSVC 19.44.35228.0
+build type: Release
+flags: /DWIN32 /D_WINDOWS /EHsc /O2 /Ob2 /DNDEBUG
+c++ standard: 199711
+timer: std::chrono::steady_clock, period 1 ns
+seed: 20261029
+reps: 21
+min sample ms: 5
+tail trials: 1000
+karp-rabin modulus: 2147483647
+karp-rabin fixed base: 31
