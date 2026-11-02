@@ -9,7 +9,7 @@ Needs pandas and matplotlib. Reads the CSVs written by benchmark_app and
 explain_app, and writes:
 
     results/summary/   median, quartiles and spread of every timing, the
-                       winner of each instance, and the karp-rabin tail table
+                       operation counts, and the karp-rabin tail table
     results/plots/     one PNG per experiment
 
 Every timing in the plots is the median of the repetitions, with the band
@@ -131,22 +131,8 @@ def runtime(results, plots, summary_dir):
     summary.to_csv(summary_dir / "runtime_summary.csv", index=False)
     print("  wrote", summary_dir / "runtime_summary.csv")
 
-    # fastest algorithm on every instance, how far ahead it is, and whether
-    # the gap is bigger than the noise (the two middle halves do not overlap)
-    rows = []
-    for key, group in summary.groupby(keys[:-1]):
-        group = group.sort_values("median")
-        best, second = group.iloc[0], group.iloc[1]
-        rows.append(dict(zip(keys[:-1], key), winner=best.algorithm,
-                         runner_up=second.algorithm,
-                         ratio=second["median"] / best["median"],
-                         clear_of_noise=bool(best.q3 < second.q1)))
-    winners = pd.DataFrame(rows)
-    winners.to_csv(summary_dir / "winners.csv", index=False)
-    print("  wrote", summary_dir / "winners.csv")
-
     panels(summary, "scale_n", "variant", "n", "text length n",
-           "Time per character as the text grows (m = 16)",
+           "Time per character as the text grows (m = 16, same pattern at every n)",
            plots / "scale_n.png", "alphabet")
     panels(summary, "scale_m", "variant", "m", "pattern length m",
            "Time per character as the pattern grows (n = 2^22)",
@@ -284,52 +270,6 @@ def explanations(results, plots):
         ax.set_title("T2: text aaa...a, pattern aa...ab (n = 2^18)")
         ax.legend(frameon=False, fontsize=8)
         save(fig, plots / "explain_bm_dependency.png")
-
-    path = results / "explain_bm_shift.csv"
-    if path.exists():
-        data = pd.read_csv(path)
-        ms = sorted(data.m.unique())
-        fig, axes = plt.subplots(1, len(ms), figsize=(4.2 * len(ms), 3.8),
-                                 squeeze=False)
-        axes = axes[0]
-        columns = [("measured_avg_shift", "both rules (boyer_moore.cpp)", "#eb6834", "s", "-"),
-                   ("badchar_only_avg_shift", "bad character only", "#2a78d6",
-                    "o", "--"),
-                   ("model_avg_shift", "model sigma(1-(1-1/sigma)^m)", "#6b6a66",
-                    None, ":")]
-        for ax, m in zip(axes, ms):
-            part = data[data.m == m].sort_values("sigma")
-            for column, label, colour, marker, style in columns:
-                if column in part:
-                    ax.plot(part.sigma, part[column], color=colour,
-                            marker=marker, linestyle=style, linewidth=2,
-                            markersize=6, label=label)
-            ax.set_title(f"m = {m}")
-            tidy(ax, "alphabet size sigma", "average shift (characters)")
-        fig.suptitle("T3: how far Boyer-Moore moves per alignment (n = 2^20)")
-        fig.tight_layout()
-        legend_below(fig, axes)
-        fig.savefig(plots / "explain_bm_shift.png", dpi=150, bbox_inches="tight")
-        plt.close(fig)
-        print("  wrote", plots / "explain_bm_shift.png")
-
-    path = results / "explain_cache.csv"
-    if path.exists():
-        data = pd.read_csv(path)
-        fig, axes = plt.subplots(1, 2, figsize=(8.4, 3.8), squeeze=False)
-        axes = axes[0]
-        for ax, sigma in zip(axes, sorted(data.sigma.unique())):
-            part = data[data.sigma == sigma]
-            pivot = part.pivot(index="algorithm", columns="layout",
-                               values="median_ns_per_char")
-            pivot.plot.bar(ax=ax, rot=0, color=["#2a78d6", "#eda100"])
-            ax.set_title(f"alphabet = {sigma}")
-            ax.set_ylabel("median ns per character")
-            ax.set_xlabel("")
-            ax.spines[["top", "right"]].set_visible(False)
-            ax.legend(frameon=False, fontsize=8)
-        fig.suptitle("T4: one 2^24 text against a 2^16 block searched 256 times")
-        save(fig, plots / "explain_cache.png")
 
 
 def main():
