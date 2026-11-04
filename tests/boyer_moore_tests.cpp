@@ -1,6 +1,6 @@
 // boyer_moore_tests.cpp - tests for boyer-moore (src/boyer_moore.cpp)
 //
-// primary author: r
+// primary author: rebecca kim
 //
 // this has its own main, so it's built on its own (see CMakeLists.txt) and
 // isn't part of String Matching.vcxproj. scripts/reproduce.py builds and
