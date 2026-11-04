@@ -1,6 +1,6 @@
 // boyer_moore.cpp - boyer-moore string matching
 //
-// primary author: r
+// primary author: rebecca kim
 //
 // ---- overview ----
 // the pattern is placed under the text and compared from right to left.
