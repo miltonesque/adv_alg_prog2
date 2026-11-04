@@ -1,6 +1,6 @@
 // boyer_moore.hpp - boyer-moore string matching
 //
-// primary author: r
+// primary author: rebecca kim
 
 #ifndef BOYER_MOORE_HPP_
 #define BOYER_MOORE_HPP_
